@@ -2,14 +2,14 @@ const fs = require("fs");
 let notes = require("../db/db.json");
 const app = require("express").Router();
 
-app.get("notes", function (req, res) {
-  notes = fs.readFileSync("../db/db.json");
+app.get("/api/notes", function (req, res) {
+  notes = fs.readFileSync("./db/db.json");
   const parsedNotes = JSON.parse(notes);
   console.log("get", parsedNotes);
   res.json(parsedNotes);
 });
 
-app.post("notes", function (req, res) {
+app.post("api/notes", function (req, res) {
   const parsedNotes = JSON.parse(notes);
 
   let newNote = {
@@ -42,7 +42,7 @@ app.delete("notes/:id", function (req, res) {
   parsedNotes = updatedNotes;
 
   fs.writeFileSync(
-    "../db/db.json",
+    "./db/db.json",
     JSON.stringify(parsedNotes),
     function (err, data) {
       if (err) throw err;
