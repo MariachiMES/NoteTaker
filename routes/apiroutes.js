@@ -1,26 +1,26 @@
 const fs = require("fs");
-let notes = require(".Develop/db/db.json");
+let notes = require("../db/db.json");
 const app = require("express").Router();
 
-app.get("/api/notes", function (req, res) {
-  notes = fs.readFileSync(".Develop/db/db.json");
+app.get("notes", function (req, res) {
+  notes = fs.readFileSync("../db/db.json");
   const parsedNotes = JSON.parse(notes);
   console.log("get", parsedNotes);
   res.json(parsedNotes);
 });
 
-app.post("/api/notes", function (req, res) {
+app.post("notes", function (req, res) {
   const parsedNotes = JSON.parse(notes);
 
   let newNote = {
-    id: Math.floor(Math.random() * 1000),
+    id: Math.floor(Math.random() * 100),
     title: req.body.title,
     next: req.body.text,
   };
   parsedNotes.push(newNote);
 
   fs.writeFileSync(
-    ".Develop/db/db.json",
+    "../db/db.json",
     JSON.stringify(parsedNotes),
     function (err, data) {
       if (err) throw err;
@@ -31,7 +31,7 @@ app.post("/api/notes", function (req, res) {
   res.json(parsedNotes);
 });
 
-app.delete("/api/notes/:id", function (req, res) {
+app.delete("notes/:id", function (req, res) {
   const parsedNotes = JSON.parse(notes);
   let updatedNotes = [];
   for (let i = 0; i > parsedNotes.length; i++) {
@@ -42,7 +42,7 @@ app.delete("/api/notes/:id", function (req, res) {
   parsedNotes = updatedNotes;
 
   fs.writeFileSync(
-    ".Develop/db/db.json",
+    "../db/db.json",
     JSON.stringify(parsedNotes),
     function (err, data) {
       if (err) throw err;
