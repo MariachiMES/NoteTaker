@@ -1,56 +1,59 @@
 const fs = require("fs");
-let notes = require("../db/db.json");
+let parsedNotes = require("../db/db.json");
 const app = require("express").Router();
 
 app.get("/api/notes", function (req, res) {
-  notes = fs.readFileSync("./db/db.json");
-  const parsedNotes = JSON.parse(notes);
-  console.log("get", parsedNotes);
-  res.json(parsedNotes);
+  fs.readFile("./db/db.json", (err, data) => {
+    if (err) throw err;
+    parsedNotes = JSON.parse(data);
+    res.send(parsedNotes);
+  });
 });
 
-app.post("api/notes", function (req, res) {
-  const parsedNotes = JSON.parse(notes);
+app.post("/api/notes", function (req, res) {
+  const userNotes = req.body;
 
-  let newNote = {
-    id: Math.floor(Math.random() * 100),
-    title: req.body.title,
-    next: req.body.text,
-  };
-  parsedNotes.push(newNote);
+  fs.readFile("./db/db.json", (err, data) => {
+    if (err) throw err;
+    parsedNotes = JSON.parse(data);
+    parsedNotes.push(userNotes);
+    let number = 1;
+    parsedNotes.forEach((note, index) => {
+      note.id = number;
+      number++;
+      return parsedNotes;
+    });
+    console.log(parsedNotes);
 
-  fs.writeFileSync(
-    "../db/db.json",
-    JSON.stringify(parsedNotes),
-    function (err, data) {
+    stringData = JSON.stringify(parsedNotes);
+
+    fs.writeFile("./db/db.json", stringData, (err, data) => {
       if (err) throw err;
-    }
-  );
-
-  console.log("post", parsedNotes);
-  res.json(parsedNotes);
+    });
+  });
+  res.send("Thank you for your note!");
 });
+app.delete("/api/notes/:id", function (req, res) {
+  const deleteNote = req.params.id;
+  console.log(deleteNote);
 
-app.delete("notes/:id", function (req, res) {
-  const parsedNotes = JSON.parse(notes);
-  let updatedNotes = [];
-  for (let i = 0; i > parsedNotes.length; i++) {
-    if (parsedNotes[i] != req.params.id) {
-      updatedNotes.push(parsedNotes[i]);
+  fs.readFile("./db/db.json", (err, data) => {
+    if (err) throw err;
+    parsedNotes = JSON.parse(data);
+
+    for (let i = 0; i < parsedNotes.length; i++) {
+      if (parsedNotes[i].id === Number(deleteNote)) {
+        parsedNotes.splice([i], 1);
+      }
     }
-  }
-  parsedNotes = updatedNotes;
+    console.log(parsedNotes);
+    stringData = JSON.stringify(parsedNotes);
 
-  fs.writeFileSync(
-    "./db/db.json",
-    JSON.stringify(parsedNotes),
-    function (err, data) {
+    fs.writeFile("./db/db.json", stringData, (err, data) => {
       if (err) throw err;
-    }
-  );
-
-  console.log("delete", parsedNotes);
-  res.json(parsedNotes);
+    });
+  });
+  res.status(204).send();
 });
 
 module.exports = app;
